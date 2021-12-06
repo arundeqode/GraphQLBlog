@@ -11,14 +11,10 @@ module Mutations
     def resolve(id:, title:, body:)
       post = Post.find_by(id: id)
       raise GraphQL::ExecutionError.new('Post not found.') unless post
-      if post.update(title: title, body: body)
-        {
-          post: post,
-          errors: [],
-        }
-      else
-        raise GraphQL::ExecutionError.new(post.errors.full_messages.join(', '))
-      end
+
+      { post: post } if post.update(title: title, body: body)
+
+      raise GraphQL::ExecutionError.new(post.errors.full_messages.join(', '))
     end
   end
 end
