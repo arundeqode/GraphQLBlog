@@ -1,7 +1,7 @@
 module Queries
   class FetchMypost < Queries::BaseQuery
     type [Types::PostType], null: false
-    argument :id, ID, required: true
+    argument :id, ID, required: false
 
     def resolve(id:)
       user = User.find_by(id: id)

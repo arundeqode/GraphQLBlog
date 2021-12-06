@@ -6,7 +6,7 @@ module Mutations
     # Define what argument this mutation accepts
     argument :title, String, required: true
     argument :body, String, required: true
-    argument :user_id, Integer, required: true
+    argument :user_id, ID, required: false
 
     def resolve(title:, body:, user_id:)
       # we will use current_user in future

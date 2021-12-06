@@ -4,7 +4,7 @@ module Mutations
     field :post, Types::PostType, null: false
 
     # Define what argument this mutation accepts
-    argument :id, ID, required: true    # Here we use input objects for practice, Explain soon!
+    argument :id, ID, required: false    # Here we use input objects for practice, Explain soon!
     argument :title, String, required: true
     argument :body, String, required: true
 
@@ -12,7 +12,7 @@ module Mutations
       post = Post.find_by(id: id)
       raise GraphQL::ExecutionError.new('Post not found.') unless post
 
-      { post: post } if post.update(title: title, body: body)
+      return { post: post } if post.update!(title: title, body: body)
 
       raise GraphQL::ExecutionError.new(post.errors.full_messages.join(', '))
     end

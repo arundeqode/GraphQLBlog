@@ -1,7 +1,7 @@
 module Queries
   class FetchUser < Queries::BaseQuery
     type Types::UserType, null: false
-    argument :id, ID, required: true
+    argument :id, ID, required: false
 
     def resolve(id:)
       user = User.find_by(id: id)
