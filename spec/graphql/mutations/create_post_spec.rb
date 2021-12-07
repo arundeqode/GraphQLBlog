@@ -1,44 +1,45 @@
 require 'rails_helper'
 
-module Mutations
-    RSpec.describe CreatePost, type: :request do
-      describe '.resolve' do
-        it 'creates a post' do
-          author = create(:user)
+describe ".resolve" do
+ let(:mutation) do
+    <<~GQL
+        mutation createPost($userId: ID){
+            createPost (input: {userId: $userId, title: "title", body: "body" }){
+             post{
+              id
+              title
+              body
+           }          
+      }      
+    }
+    GQL
+ end
 
-          expect do
-            post '/graphql', params: { query: query(user_id: author.id) }
-          end.to change { Post.count }.by(1)
-        end
+ let(:user) { create(:user) }
 
-        it 'returns a post' do
-          user = create(:user)
+ let(:post) { create(:post, user: user, body: "body") }
 
-          post '/graphql', params: { query: query(user_id: user.id) }
-          json = JSON.parse(response.body)
-          data = json.dig('data',  'createPost', 'post')
-
-          expect(data['id']).to_not be_nil
-          expect(data['title']).to eql "Tripwire"
-        end
-      end
-
-      def query(user_id:)
-        <<~GQL
-          mutation {
-            createPost(input: {
-              userId: #{user_id} 
-              title: "Tripwire"
-              body: "1999"
-            }) {
-              post{
-                id
-                title
-                body
-              }
-            }
-          }
-        GQL
-      end
+ context "when a post is created"  do
+    it "is expected to create a post" do
+      result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {userId: user.id}).as_json
+      data = result.dig('data',  'createPost', 'post')
+      expect(data['id']).to_not be_nil
     end
+ end
+
+ context "When user is not present" do 
+    it "is expected to raise user not found error" do
+      result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {userId: 1}).as_json
+      expect(result['errors'][0]["message"]).to eql "user not found"
+    end
+ end
+
+ context "When post body is not unique" do 
+    before { post }
+
+    it "is expected to raise error of body uniqueness" do
+      result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {userId: user.id}).as_json
+      expect(result['errors'][0]["message"]).to eql "Body has already been taken"
+    end
+ end 
 end

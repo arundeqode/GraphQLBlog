@@ -13,17 +13,17 @@ describe ".resolve" do
     GQL
  end
 
- let(:result) do
-    user = create(:user)
-    post = create(:post, user: user)
-    post1 = create(:post, body: "body1", user: user)
-    result = RailsApiGraphqlCrudTutoSchema.execute(query).as_json
- end
+ let(:user) { create(:user) }
 
- context "when get all post"  do
-  it "is expect to return 2 records" do
+ let(:post) { create(:post, user_id: user.id) }
+
+ let(:post1) { create(:post, body: "body 1",user_id: user.id) }
+
+ context "when fetch posts"  do
+  it "is expected to return all posts" do
+    result = RailsApiGraphqlCrudTutoSchema.execute(query).as_json
     data = result.dig('data',  'posts')
-    expect(data.count).to eql 2
+    expect(data.count).to eql Post.count
   end
  end
 

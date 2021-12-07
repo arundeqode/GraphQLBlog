@@ -13,20 +13,18 @@ describe ".resolve" do
     GQL
  end
 
- let(:result) do
-    user = create(:user)
-    result = RailsApiGraphqlCrudTutoSchema.execute(query, variables: {id: user.id}).as_json
- end
+ let(:user) { create(:user) }
 
- context "when try get user"  do
-  it "result can not blank" do
+ context "when fetch a user"  do
+  it "is expected to return user" do
+    result = RailsApiGraphqlCrudTutoSchema.execute(query, variables: {id: user.id}).as_json
     data = result.dig('data',  'user')
-    expect(data).to_not be_nil
+    expect(data['id']).to_not be_nil
   end
  end
 
- context "when error occurs" do 
-  it "it expect to raise error when user is not present" do
+ context "when user is not present" do 
+  it "is expected to raise error user does not exist." do
     result = RailsApiGraphqlCrudTutoSchema.execute(query, variables: {id: nil}).as_json
     data = result.dig('errors')
     expect(data[0]["message"]).to eql "User does not exist."

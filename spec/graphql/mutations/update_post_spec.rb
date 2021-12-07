@@ -15,31 +15,22 @@ describe ".resolve" do
     GQL
  end
 
- let(:result) do
-    user = create(:user)
-    post = create(:post, user: user)
-    result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: post.id}).as_json
- end
+ let(:user) { create(:user) }
 
- context "when update a post"  do
-  it "is expect to not nil" do
+ let(:post) { create(:post, user_id: user.id) }
+
+ context "when a post is updated"  do
+  it "is expected to update the post" do
+    result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: post.id}).as_json
     data = result.dig('data',  'updatePost', 'post')
     expect(data['id']).to_not be_nil
-  end
-
-  it "is expect to update title" do
-    title = result.dig('data',  'updatePost', 'post', 'title')
-    expect(title).to eql 'title'
-  end
-
-  it "is expect to update body" do
-    body = result.dig('data',  'updatePost', 'post', 'body')
-    expect(body).to eql 'body'
+    expect(data['title']).to eql 'title'
+    expect(data['body']).to eql 'body'
   end
  end
 
- context "when error occurs" do 
-  it "it expect to raise error when post is not present" do
+ context "when post is not present" do 
+  it "it expected to raise error post not found" do
     result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: 1}).as_json
     data = result.dig('errors')
     expect(data[0]["message"]).to eql "Post not found."
