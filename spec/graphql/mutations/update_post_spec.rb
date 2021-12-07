@@ -14,26 +14,32 @@ describe ".resolve" do
     }
     GQL
  end
- context "update a post"  do
-  it "result can not blank" do
-      user = create(:user)
-      post = create(:post, user: user)
-      result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: post.id}).as_json
-      data = result.dig('data',  'updatePost', 'post')
-      expect(data['id']).to_not be_nil
+
+ let(:result) do
+    user = create(:user)
+    post = create(:post, user: user)
+    result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: post.id}).as_json
+ end
+
+ context "when update a post"  do
+  it "is expect to not nil" do
+    data = result.dig('data',  'updatePost', 'post')
+    expect(data['id']).to_not be_nil
   end
 
-  it "result return correct data" do
-      user = create(:user)
-      post = create(:post, user: user)
-      result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: post.id}).as_json
-      data = result.dig('data',  'updatePost', 'post')
-      expect(data).to eq({"id"=> data['id'], "title"=> "title", "body"=> "body"})
+  it "is expect to update title" do
+    title = result.dig('data',  'updatePost', 'post', 'title')
+    expect(title).to eql 'title'
+  end
+
+  it "is expect to update body" do
+    body = result.dig('data',  'updatePost', 'post', 'body')
+    expect(body).to eql 'body'
   end
  end
 
- context "return correct errors" do 
-  it "should raise error when user id is not correct" do
+ context "when error occurs" do 
+  it "it expect to raise error when post is not present" do
     result = RailsApiGraphqlCrudTutoSchema.execute(mutation, variables: {id: 1}).as_json
     data = result.dig('errors')
     expect(data[0]["message"]).to eql "Post not found."
